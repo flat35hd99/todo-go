@@ -27,13 +27,13 @@ func NewUserController(db *gorm.DB) UserController {
 func (controller UserController) getUser(c echo.Context) error {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, "id is not correct")
+		return echo.NewHTTPError(http.StatusBadRequest, "Irregal ID")
 	}
 
 	var user User
 	result := controller.db.First(&user, id)
 	if result.Error != nil {
-		return echo.NewHTTPError(http.StatusNotFound, "User not fount by id")
+		return echo.NewHTTPError(http.StatusNotFound, "User not found")
 	}
 
 	return c.JSON(http.StatusOK, user)
@@ -52,7 +52,7 @@ func (controlloer UserController) createUser(c echo.Context) error {
 
 	result := controlloer.db.Create(&user)
 	if result.Error != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, "User could not be created")
+		return echo.NewHTTPError(http.StatusInternalServerError, "User could not be created")
 	}
 
 	return c.JSON(http.StatusOK, user)
