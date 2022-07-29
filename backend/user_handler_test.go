@@ -39,7 +39,7 @@ func TestCreateUser(t *testing.T) {
 			Name      string `json:"name"`
 			Age       int    `json:"age"`
 			CreatedAt string `json:"created_at"`
-			UpdatedAt string `json:"Updated_at"`
+			UpdatedAt string `json:"updated_at"`
 		}
 		if err := json.Unmarshal(rec.Body.Bytes(), &u); err != nil {
 			t.Error(err)
