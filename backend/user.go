@@ -3,28 +3,34 @@ package main
 import (
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/labstack/echo/v4"
 	"gorm.io/gorm"
 )
 
-type UserController struct {
+type UserHandler struct {
 	db *gorm.DB
 }
 
 type User struct {
-	gorm.Model
+	// Costumized gorm.Model
+	ID        int       `gorm:"primary_key" json:"id"`
+	CreatedAt time.Time `gorm:"autoCreateTime" json:"created_at"`
+	UpdatedAt time.Time `gorm:"autoUpdateTime" json:"updated_at"`
+	// DeletedAt gorm.DeletedAt `gorm:"index"`
+
 	Name string
 	Age  uint
 }
 
-func NewUserController(db *gorm.DB) UserController {
-	var controller UserController
+func NewUserHandler(db *gorm.DB) UserHandler {
+	var controller UserHandler
 	controller.db = db
 	return controller
 }
 
-func (controller UserController) getUser(c echo.Context) error {
+func (controller UserHandler) getUser(c echo.Context) error {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Irregal ID")
@@ -39,12 +45,14 @@ func (controller UserController) getUser(c echo.Context) error {
 	return c.JSON(http.StatusOK, user)
 }
 
-func (controlloer UserController) createUser(c echo.Context) error {
+func (controlloer UserHandler) createUser(c echo.Context) error {
 	u := new(User)
 	if err := c.Bind(u); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Structure is not good")
 	}
 
+	// Use only name and age properties
+	// to avoid users to inject illegal value
 	user := User{
 		Name: u.Name,
 		Age:  u.Age,
@@ -52,7 +60,7 @@ func (controlloer UserController) createUser(c echo.Context) error {
 
 	result := controlloer.db.Create(&user)
 	if result.Error != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, "User could not be created")
+		return echo.NewHTTPError(http.StatusInternalServerError, result.Error)
 	}
 
 	return c.JSON(http.StatusOK, user)

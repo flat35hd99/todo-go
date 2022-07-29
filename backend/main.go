@@ -9,16 +9,20 @@ import (
 func main() {
 	e := echo.New()
 
-	db, err := gorm.Open(sqlite.Open("test.db"), &gorm.Config{})
+	db, err := gorm.Open(sqlite.Open("production.db"), &gorm.Config{})
 	if err != nil {
 		panic("failed to connet database")
 	}
 
-	db.AutoMigrate(&User{})
+	err = db.AutoMigrate(&User{})
+	if err != nil {
+		panic(err)
+	}
 
-	userController := NewUserController(db)
+	userHandler := NewUserHandler(db)
+	userGroup := e.Group("/users")
+	userGroup.GET("/:id", userHandler.getUser)
+	userGroup.POST("/", userHandler.createUser)
 
-	e.GET("/users/:id", userController.getUser)
-	e.POST("users", userController.createUser)
 	e.Logger.Fatal(e.Start(":8080"))
 }
