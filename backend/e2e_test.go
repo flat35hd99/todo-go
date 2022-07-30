@@ -16,17 +16,17 @@ import (
 This function will create a mock database and return it.
 The database will be closed when the test is finished.
 */
-func newMockDB(t *testing.T) (*gorm.DB, error) {
+func newMockDB(t *testing.T) *gorm.DB {
 	tmpdir := t.TempDir()
 
 	db, err := gorm.Open(sqlite.Open(filepath.Join(tmpdir, "test.db")), &gorm.Config{})
 	if err != nil {
-		return nil, err
+		t.Error(err)
 	}
 	if err = db.AutoMigrate(&User{}); err != nil {
-		return nil, err
+		t.Error(err)
 	}
-	return db, err
+	return db
 }
 
 func TestE2E(t *testing.T) {
@@ -35,10 +35,7 @@ func TestE2E(t *testing.T) {
 	t.Run("Abnormal: Try to get a users does not exist", func(t *testing.T) {
 		t.Parallel()
 
-		db, err := newMockDB(t)
-		if err != nil {
-			t.Error(err)
-		}
+		db := newMockDB(t)
 		apitest.New().
 			Handler(newApp(db)).
 			Get("/users/1").
@@ -50,15 +47,12 @@ func TestE2E(t *testing.T) {
 	t.Run("Normal: Get users", func(t *testing.T) {
 		t.Parallel()
 
-		db, err := newMockDB(t)
-		if err != nil {
-			t.Error(err)
-		}
+		db := newMockDB(t)
 		user := User{
 			Name: "test",
 			Age:  30,
 		}
-		if err = db.Create(&user).Error; err != nil {
+		if err := db.Create(&user).Error; err != nil {
 			t.Error(err)
 		}
 		apitest.New().
@@ -72,10 +66,7 @@ func TestE2E(t *testing.T) {
 	t.Run("Normal: Create users", func(t *testing.T) {
 		t.Parallel()
 
-		db, err := newMockDB(t)
-		if err != nil {
-			t.Error(err)
-		}
+		db := newMockDB(t)
 		apitest.New().
 			Handler(newApp(db)).
 			Post("/users").

@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"log"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -17,13 +16,7 @@ func TestCreateUser(t *testing.T) {
 	t.Parallel()
 	e := echo.New()
 
-	db, err := newMockDB(t)
-	if err != nil {
-		log.Fatal(err)
-	}
-	if err = db.AutoMigrate(&User{}); err != nil {
-		t.Errorf("%v\n", err)
-	}
+	db := newMockDB(t)
 
 	userJSON := `{"name": "Bob", "age": 22}`
 	req := httptest.NewRequest(http.MethodPost, "/", strings.NewReader(userJSON))
@@ -72,13 +65,8 @@ func TestGetUser(t *testing.T) {
 	t.Parallel()
 	e := echo.New()
 
-	db, err := newMockDB(t)
-	if err != nil {
-		log.Fatal(err)
-	}
-	if err = db.AutoMigrate(&User{}); err != nil {
-		t.Errorf("%v\n", err)
-	}
+	db := newMockDB(t)
+
 	seedUser(db)
 
 	t.Run("Normal: Get a user", func(t *testing.T) {
@@ -158,13 +146,8 @@ func TestUpdateUser(t *testing.T) {
 	t.Parallel()
 	e := echo.New()
 
-	db, err := newMockDB(t)
-	if err != nil {
-		log.Fatal(err)
-	}
-	if err = db.AutoMigrate(&User{}); err != nil {
-		t.Errorf("%v\n", err)
-	}
+	db := newMockDB(t)
+
 	seedUser(db)
 
 	t.Run("Normal: Update name of a user", func(t *testing.T) {
@@ -244,13 +227,8 @@ func TestGetUsers(t *testing.T) {
 	t.Parallel()
 	e := echo.New()
 
-	db, err := newMockDB(t)
-	if err != nil {
-		log.Fatal(err)
-	}
-	if err = db.AutoMigrate(&User{}); err != nil {
-		t.Errorf("%v\n", err)
-	}
+	db := newMockDB(t)
+
 	seedUser(db)
 
 	t.Run("Normal: Get all users", func(t *testing.T) {
@@ -289,13 +267,7 @@ func TestDeleteUser(t *testing.T) {
 	t.Parallel()
 	e := echo.New()
 
-	db, err := newMockDB(t)
-	if err != nil {
-		log.Fatal(err)
-	}
-	if err = db.AutoMigrate(&User{}); err != nil {
-		t.Errorf("%v\n", err)
-	}
+	db := newMockDB(t)
 	seedUser(db)
 
 	t.Run("Normal: Delete a user", func(t *testing.T) {
