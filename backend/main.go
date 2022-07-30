@@ -63,5 +63,5 @@ func main() {
 		e.Logger.Fatal(err)
 	}
 
-	defer println("Server successfully has been shutdown")
+	println("Server successfully has been shutdown")
 }
