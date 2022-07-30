@@ -22,7 +22,8 @@ func main() {
 	userHandler := NewUserHandler(db)
 	userGroup := e.Group("/users")
 	userGroup.GET("/:id", userHandler.getUser)
-	userGroup.POST("/", userHandler.createUser)
+	userGroup.POST("", userHandler.createUser)
+	userGroup.PUT("/:id", userHandler.updateUser)
 
 	e.Logger.Fatal(e.Start(":8080"))
 }

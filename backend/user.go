@@ -20,8 +20,8 @@ type User struct {
 	UpdatedAt time.Time `gorm:"autoUpdateTime" json:"updated_at"`
 	// DeletedAt gorm.DeletedAt `gorm:"index"`
 
-	Name string
-	Age  uint
+	Name string `json:"name"`
+	Age  uint   `json:"age"`
 }
 
 func NewUserHandler(db *gorm.DB) UserHandler {
@@ -37,7 +37,7 @@ func (controller UserHandler) getUser(c echo.Context) error {
 	}
 
 	var user User
-	result := controller.db.First(&user, id)
+	result := controller.db.Take(&user, "id = ?", id)
 	if result.Error != nil {
 		return echo.NewHTTPError(http.StatusNotFound, "User not found")
 	}
@@ -59,6 +59,34 @@ func (controlloer UserHandler) createUser(c echo.Context) error {
 	}
 
 	result := controlloer.db.Create(&user)
+	if result.Error != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, result.Error)
+	}
+
+	return c.JSON(http.StatusOK, user)
+}
+
+func (controller UserHandler) updateUser(c echo.Context) error {
+	u := new(User)
+	if err := c.Bind(u); err != nil || u.Name == "" || u.Age == 0 {
+		return echo.NewHTTPError(http.StatusBadRequest, "Structure is not good")
+	}
+
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "Irregal ID")
+	}
+
+	var user User
+	result := controller.db.Take(&user, "id = ?", id)
+	if result.Error != nil {
+		return echo.NewHTTPError(http.StatusNotFound, "User not found")
+	}
+
+	user.Name = u.Name
+	user.Age = u.Age
+
+	result = controller.db.Save(&user)
 	if result.Error != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, result.Error)
 	}
