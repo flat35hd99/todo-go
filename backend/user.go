@@ -45,7 +45,7 @@ func (controller UserHandler) getUser(c echo.Context) error {
 	return c.JSON(http.StatusOK, user)
 }
 
-func (controlloer UserHandler) createUser(c echo.Context) error {
+func (handler UserHandler) createUser(c echo.Context) error {
 	u := new(User)
 	if err := c.Bind(u); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Structure is not good")
@@ -58,7 +58,7 @@ func (controlloer UserHandler) createUser(c echo.Context) error {
 		Age:  u.Age,
 	}
 
-	result := controlloer.db.Create(&user)
+	result := handler.db.Create(&user)
 	if result.Error != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, result.Error)
 	}
@@ -66,7 +66,7 @@ func (controlloer UserHandler) createUser(c echo.Context) error {
 	return c.JSON(http.StatusOK, user)
 }
 
-func (controller UserHandler) updateUser(c echo.Context) error {
+func (handler UserHandler) updateUser(c echo.Context) error {
 	u := new(User)
 	if err := c.Bind(u); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Structure is not good")
@@ -78,7 +78,7 @@ func (controller UserHandler) updateUser(c echo.Context) error {
 	}
 
 	var user User
-	result := controller.db.Take(&user, "id = ?", id)
+	result := handler.db.Take(&user, "id = ?", id)
 	if result.Error != nil {
 		return echo.NewHTTPError(http.StatusNotFound, "User not found")
 	}
@@ -91,7 +91,7 @@ func (controller UserHandler) updateUser(c echo.Context) error {
 		user.Age = u.Age
 	}
 
-	result = controller.db.Save(&user)
+	result = handler.db.Save(&user)
 	if result.Error != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, result.Error)
 	}
@@ -99,9 +99,9 @@ func (controller UserHandler) updateUser(c echo.Context) error {
 	return c.JSON(http.StatusOK, user)
 }
 
-func (controller UserHandler) getUsers(c echo.Context) error {
+func (handler UserHandler) getUsers(c echo.Context) error {
 	var users []User
-	result := controller.db.Find(&users)
+	result := handler.db.Find(&users)
 	if result.Error != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, result.Error)
 	}
@@ -113,19 +113,19 @@ func (controller UserHandler) getUsers(c echo.Context) error {
 	})
 }
 
-func (controller UserHandler) deleteUser(c echo.Context) error {
+func (handler UserHandler) deleteUser(c echo.Context) error {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Irregal ID")
 	}
 
 	var user User
-	result := controller.db.Take(&user, "id = ?", id)
+	result := handler.db.Take(&user, "id = ?", id)
 	if result.Error != nil {
 		return echo.NewHTTPError(http.StatusNotFound, "User not found")
 	}
 
-	result = controller.db.Delete(&user)
+	result = handler.db.Delete(&user)
 	if result.Error != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, result.Error)
 	}
