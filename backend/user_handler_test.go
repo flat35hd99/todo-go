@@ -2,18 +2,14 @@ package main
 
 import (
 	"encoding/json"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"net/http/httptest"
-	"os"
-	"path/filepath"
 	"strings"
 	"testing"
 
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
-	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
 
@@ -21,13 +17,7 @@ func TestCreateUser(t *testing.T) {
 	t.Parallel()
 	e := echo.New()
 
-	dir, err := ioutil.TempDir("", "db")
-	if err != nil {
-		log.Fatal(err)
-	}
-	t.Cleanup(func() { os.RemoveAll(dir) })
-
-	db, err := gorm.Open(sqlite.Open(filepath.Join(dir, "test.db")), &gorm.Config{})
+	db, err := newMockDB(t)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -82,15 +72,7 @@ func TestGetUser(t *testing.T) {
 	t.Parallel()
 	e := echo.New()
 
-	dir, err := ioutil.TempDir("", "db")
-	if err != nil {
-		log.Fatal(err)
-	}
-	t.Cleanup(func() {
-		os.RemoveAll(dir)
-	})
-
-	db, err := gorm.Open(sqlite.Open(filepath.Join(dir, "test.db")), &gorm.Config{})
+	db, err := newMockDB(t)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -176,15 +158,7 @@ func TestUpdateUser(t *testing.T) {
 	t.Parallel()
 	e := echo.New()
 
-	dir, err := ioutil.TempDir("", "db")
-	if err != nil {
-		log.Fatal(err)
-	}
-	t.Cleanup(func() {
-		os.RemoveAll(dir)
-	})
-
-	db, err := gorm.Open(sqlite.Open(filepath.Join(dir, "test.db")), &gorm.Config{})
+	db, err := newMockDB(t)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -270,15 +244,7 @@ func TestGetUsers(t *testing.T) {
 	t.Parallel()
 	e := echo.New()
 
-	dir, err := ioutil.TempDir("", "db")
-	if err != nil {
-		log.Fatal(err)
-	}
-	t.Cleanup(func() {
-		os.RemoveAll(dir)
-	})
-
-	db, err := gorm.Open(sqlite.Open(filepath.Join(dir, "test.db")), &gorm.Config{})
+	db, err := newMockDB(t)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -323,15 +289,7 @@ func TestDeleteUser(t *testing.T) {
 	t.Parallel()
 	e := echo.New()
 
-	dir, err := ioutil.TempDir("", "db")
-	if err != nil {
-		log.Fatal(err)
-	}
-	t.Cleanup(func() {
-		os.RemoveAll(dir)
-	})
-
-	db, err := gorm.Open(sqlite.Open(filepath.Join(dir, "test.db")), &gorm.Config{})
+	db, err := newMockDB(t)
 	if err != nil {
 		log.Fatal(err)
 	}

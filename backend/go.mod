@@ -4,6 +4,7 @@ go 1.18
 
 require (
 	github.com/labstack/echo/v4 v4.7.2
+	github.com/steinfletcher/apitest v1.5.12
 	github.com/stretchr/testify v1.7.0
 	gorm.io/driver/sqlite v1.3.6
 	gorm.io/gorm v1.23.8
