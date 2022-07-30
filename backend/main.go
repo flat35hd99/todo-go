@@ -21,9 +21,11 @@ func main() {
 
 	userHandler := NewUserHandler(db)
 	userGroup := e.Group("/users")
+	userGroup.GET("", userHandler.getUsers)
 	userGroup.GET("/:id", userHandler.getUser)
 	userGroup.POST("", userHandler.createUser)
-	userGroup.PUT("/:id", userHandler.updateUser)
+	userGroup.PATCH("/:id", userHandler.updateUser)
+	userGroup.DELETE("/:id", userHandler.deleteUser)
 
 	e.Logger.Fatal(e.Start(":8080"))
 }
