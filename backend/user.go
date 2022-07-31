@@ -3,7 +3,6 @@ package main
 import (
 	"net/http"
 	"strconv"
-	"time"
 
 	"github.com/labstack/echo/v4"
 	"gorm.io/gorm"
@@ -11,17 +10,6 @@ import (
 
 type UserHandler struct {
 	db *gorm.DB
-}
-
-type User struct {
-	// Costumized gorm.Model
-	ID        int       `gorm:"primary_key" json:"id"`
-	CreatedAt time.Time `gorm:"autoCreateTime" json:"created_at"`
-	UpdatedAt time.Time `gorm:"autoUpdateTime" json:"updated_at"`
-	// DeletedAt gorm.DeletedAt `gorm:"index"`
-
-	Name string `json:"name"`
-	Age  uint   `json:"age"`
 }
 
 func NewUserHandler(db *gorm.DB) UserHandler {

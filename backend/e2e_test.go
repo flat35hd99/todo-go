@@ -1,11 +1,13 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 	"path/filepath"
 	"testing"
 
 	"github.com/steinfletcher/apitest"
+	jsonpath "github.com/steinfletcher/apitest-jsonpath"
 	"github.com/stretchr/testify/assert"
 
 	"gorm.io/driver/sqlite"
@@ -23,7 +25,7 @@ func newMockDB(t *testing.T) *gorm.DB {
 	if err != nil {
 		t.Error(err)
 	}
-	if err = db.AutoMigrate(&User{}); err != nil {
+	if err = db.AutoMigrate(&User{}, &Todo{}); err != nil {
 		t.Error(err)
 	}
 	return db
@@ -93,5 +95,93 @@ func TestE2E(t *testing.T) {
 		assert.NotEmpty(t, u_db.ID)
 		assert.NotEmpty(t, u_db.CreatedAt)
 		assert.NotEmpty(t, u_db.UpdatedAt)
+	})
+
+	t.Run("Normal: Get a todo", func(t *testing.T) {
+		t.Parallel()
+
+		db := newMockDB(t)
+
+		type todo struct {
+			Title  string `json:"title"`
+			Body   string `json:"body"`
+			Done   bool   `json:"done"`
+			UserId int    `json:"user_id"`
+		}
+		type user struct {
+			ID    int    `json:"id"`
+			Name  string `json:"name"`
+			Age   int    `json:"age"`
+			Todos []todo `json:"todos"`
+		}
+		u := user{
+			Name: "test",
+			Age:  30,
+			Todos: []todo{
+				{
+					Title: "test title",
+					Body:  "test body",
+					Done:  false,
+				},
+			},
+		}
+		if err := db.Create(&u).Error; err != nil {
+			t.Error(err)
+		}
+		apitest.New().
+			Handler(newApp(db)).
+			Get("/todos/1").
+			Expect(t).
+			Status(http.StatusOK).
+			Assert(
+				jsonpath.Chain().
+					Equal("title", "test title").
+					Equal("body", "test body").
+					Equal("done", false).
+					Equal("user_id", 1.0). // TODO: fix this
+					End()).
+			End()
+	})
+
+	t.Run("Normal: Create a todo", func(t *testing.T) {
+		t.Parallel()
+
+		db := newMockDB(t)
+
+		type todo struct {
+			Title  string `json:"title"`
+			Body   string `json:"body"`
+			Done   bool   `json:"done"`
+			UserId int    `json:"user_id"`
+		}
+		type user struct {
+			ID    int    `json:"id"`
+			Name  string `json:"name"`
+			Age   int    `json:"age"`
+			Todos []todo `json:"todos"`
+		}
+		u := user{
+			Name:  "test",
+			Age:   30,
+			Todos: []todo{},
+		}
+		if err := db.Create(&u).Error; err != nil {
+			t.Error(err)
+		}
+		apitest.New().
+			Handler(newApp(db)).
+			Post("/todos").
+			ContentType("application/json").
+			Body(fmt.Sprintf(`{"title":"test title","body":"test body","done":false,"user_id":%d}`, u.ID)).
+			Expect(t).
+			Status(http.StatusOK).
+			End()
+
+		td := Todo{}
+		assert.NoError(t, db.First(&td).Error)
+		assert.Equal(t, td.Title, "test title")
+		assert.Equal(t, td.Body, "test body")
+		assert.Equal(t, td.Done, false)
+		assert.Equal(t, td.UserID, u.ID)
 	})
 }

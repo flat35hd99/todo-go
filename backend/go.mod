@@ -5,12 +5,15 @@ go 1.18
 require (
 	github.com/labstack/echo/v4 v4.7.2
 	github.com/steinfletcher/apitest v1.5.12
+	github.com/steinfletcher/apitest-jsonpath v1.7.1
 	github.com/stretchr/testify v1.7.0
 	gorm.io/driver/sqlite v1.3.6
 	gorm.io/gorm v1.23.8
 )
 
 require (
+	github.com/PaesslerAG/gval v1.0.0 // indirect
+	github.com/PaesslerAG/jsonpath v0.1.1 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect

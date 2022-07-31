@@ -24,6 +24,12 @@ func newApp(db *gorm.DB) *echo.Echo {
 	userGroup.PATCH("/:id", userHandler.updateUser)
 	userGroup.DELETE("/:id", userHandler.deleteUser)
 
+	todoHandler := NewTodoHandler(db)
+	todoGroup := e.Group("/todos")
+	// todoGroup.GET("", todoHandler.getTodos)
+	todoGroup.GET("/:id", todoHandler.getTodo)
+	todoGroup.POST("", todoHandler.createTodo)
+
 	return e
 }
 
@@ -33,7 +39,7 @@ func newDB() (*gorm.DB, error) {
 		return nil, err
 	}
 
-	err = db.AutoMigrate(&User{})
+	err = db.AutoMigrate(&User{}, &Todo{})
 	if err != nil {
 		return nil, err
 	}
