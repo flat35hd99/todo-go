@@ -39,11 +39,11 @@ jobs:
           go build .
         working-directory: backend
       
-      - name: "Upload artifact"
-        uses: actions/upload-artifact@v3
-        with:
-          name: "api"
-          path: ./backend/api
+      # - name: "Upload artifact"
+      #   uses: actions/upload-artifact@v3
+      #   with:
+      #     name: "api"
+      #     path: ./backend/api
   
   build-front:
     runs-on: ubuntu-latest
