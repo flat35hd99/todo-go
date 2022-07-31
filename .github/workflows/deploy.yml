@@ -38,3 +38,40 @@ jobs:
         with:
           name: "api"
           path: ./backend/api
+  
+  build-front:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        
+      - uses: actions/setup-node@v3
+        with:
+          node-version: "18.4.0"
+          cache: "yarn"
+          cache-dependency-path: front/yarn.lock
+      - run: yarn
+        working-directory: front
+      - run: yarn build
+        working-directory: front
+      
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v1
+        with:
+          path: ./front/dist
+  
+  deploy-front:
+    runs-on: ubuntu-latest
+    needs:  build-front
+    permissions: 
+      contents: read
+      pages: write
+      id-token: write
+    enviroments:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url}}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v1
+    
+    
