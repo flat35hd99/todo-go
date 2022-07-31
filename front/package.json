@@ -15,9 +15,12 @@
     "@emotion/react": "^11.10.0",
     "@emotion/styled": "^11.10.0",
     "@mui/material": "^5.9.2",
+    "@types/node": "^18.6.3",
+    "axios": "^0.27.2",
     "eslint-plugin-prettier": "^4.2.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-hook-form": "^7.34.0",
     "react-router-dom": "^6.3.0"
   },
   "devDependencies": {

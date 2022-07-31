@@ -37,5 +37,9 @@
 		"github-cli": "latest",
 		"azure-cli": "latest",
 		"golang": "latest"
+	},
+
+	"containerEnv": {
+		"REACT_APP_API_URL": "http://localhost:8080"
 	}
 }

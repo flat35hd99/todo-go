@@ -9,12 +9,15 @@ import (
 	"time"
 
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
 
 func newApp(db *gorm.DB) *echo.Echo {
 	e := echo.New()
+
+	e.Use(middleware.CORS())
 
 	userHandler := NewUserHandler(db)
 	userGroup := e.Group("/users")
@@ -26,7 +29,7 @@ func newApp(db *gorm.DB) *echo.Echo {
 
 	todoHandler := NewTodoHandler(db)
 	todoGroup := e.Group("/todos")
-	// todoGroup.GET("", todoHandler.getTodos)
+	todoGroup.GET("", todoHandler.getTodos)
 	todoGroup.GET("/:id", todoHandler.getTodo)
 	todoGroup.POST("", todoHandler.createTodo)
 
