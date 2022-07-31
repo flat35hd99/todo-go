@@ -1,12 +1,17 @@
-import { BrowserRouter } from 'react-router-dom'
+import { Routes, Route } from 'react-router-dom'
+import Home from './pages/Home'
+import Signin from './pages/Signin'
+import Todo from './pages/Todo'
 
 function App() {
   return (
-    <BrowserRouter>
-      <div>
-        <h1>Hello world!</h1>
-      </div>
-    </BrowserRouter>
+    <div>
+      <Routes>
+        <Route index element={<Home />} />
+        <Route path="signin" element={<Signin />} />
+        <Route path="todo" element={<Todo />} />
+      </Routes>
+    </div>
   )
 }
 
