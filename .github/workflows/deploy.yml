@@ -69,4 +69,4 @@ jobs:
       
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v1.0.6
+        uses: flat35hd99/deploy-pages@main
