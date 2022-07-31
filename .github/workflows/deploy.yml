@@ -12,46 +12,46 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-        
+
       - uses: actions/setup-go@v3
         with:
           go-version-file: "backend/go.mod"
           cache: true
           cache-dependency-path: backend/go.sum
-        
+
       - name: "Install dependencies"
         run: |
           go get -v .
         working-directory: backend
-      
+
       - name: "Test"
         run: |
           go test -v .
         working-directory: backend
-      
+
       - name: "Build"
         run: |
           go build .
         working-directory: backend
-      
+
       - name: "Upload artifact"
         uses: actions/upload-artifact@v3
         with:
           name: "api"
           path: ./backend/api
-  
+
   build-front:
     runs-on: ubuntu-latest
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-    permissions: 
+    permissions:
       contents: read
       pages: write
       id-token: write
     steps:
       - uses: actions/checkout@v2
-        
+
       - uses: actions/setup-node@v3
         with:
           node-version: "18.4.0"
@@ -59,14 +59,18 @@ jobs:
           cache-dependency-path: front/yarn.lock
       - run: yarn
         working-directory: front
+
+      - run: yarn lint
+        working-directory: front
+
       - run: yarn build
         working-directory: front
-      
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1
         with:
           path: ./front/dist/
-      
+
       - name: Deploy to GitHub Pages
         id: deployment
         uses: flat35hd99/deploy-pages@main
