@@ -146,12 +146,11 @@ func TestUpdateUser(t *testing.T) {
 	t.Parallel()
 	e := echo.New()
 
-	db := newMockDB(t)
-
-	seedUser(db)
-
 	t.Run("Normal: Update name of a user", func(t *testing.T) {
 		t.Parallel()
+
+		db := newMockDB(t)
+		seedUser(db)
 
 		// Update bob's name to Captain
 		userJSON := `{"name": "Captain"}`
@@ -188,6 +187,9 @@ func TestUpdateUser(t *testing.T) {
 
 	t.Run("Normal: Update Age of a user", func(t *testing.T) {
 		t.Parallel()
+
+		db := newMockDB(t)
+		seedUser(db)
 
 		// Update alice's age from 33 to 30
 		userJSON := `{"age": 30}`
@@ -227,12 +229,11 @@ func TestGetUsers(t *testing.T) {
 	t.Parallel()
 	e := echo.New()
 
-	db := newMockDB(t)
-
-	seedUser(db)
-
 	t.Run("Normal: Get all users", func(t *testing.T) {
 		t.Parallel()
+
+		db := newMockDB(t)
+		seedUser(db)
 
 		req := httptest.NewRequest(http.MethodGet, "/", nil)
 
@@ -267,11 +268,11 @@ func TestDeleteUser(t *testing.T) {
 	t.Parallel()
 	e := echo.New()
 
-	db := newMockDB(t)
-	seedUser(db)
-
 	t.Run("Normal: Delete a user", func(t *testing.T) {
 		t.Parallel()
+
+		db := newMockDB(t)
+		seedUser(db)
 
 		req := httptest.NewRequest(http.MethodDelete, "/", nil)
 

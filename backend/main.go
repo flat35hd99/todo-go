@@ -2,14 +2,13 @@ package main
 
 import (
 	"context"
-	"net/http"
-	"os"
-	"os/signal"
-	"syscall"
-	"time"
+	"log"
 
+	"github.com/aws/aws-lambda-go/events"
+	"github.com/aws/aws-lambda-go/lambda"
+	echoadapter "github.com/awslabs/aws-lambda-go-api-proxy/echo"
+	"github.com/glebarez/sqlite"
 	"github.com/labstack/echo/v4"
-	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
 
@@ -34,7 +33,7 @@ func newApp(db *gorm.DB) *echo.Echo {
 }
 
 func newDB() (*gorm.DB, error) {
-	db, err := gorm.Open(sqlite.Open("production.db"), &gorm.Config{})
+	db, err := gorm.Open(sqlite.Open("/tmp/production.db"), &gorm.Config{})
 	if err != nil {
 		return nil, err
 	}
@@ -46,28 +45,22 @@ func newDB() (*gorm.DB, error) {
 	return db, nil
 }
 
-func main() {
+var lambdaAdapter *echoadapter.EchoLambdaV2
+
+func init() {
+	log.Print("Cold started")
 	db, err := newDB()
 	if err != nil {
 		panic(err)
 	}
 
 	e := newApp(db)
-	go func() {
-		if err := e.Start(":8080"); err != nil && err != http.ErrServerClosed {
-			e.Logger.Fatal("shutting down the server")
-		}
-	}()
+	lambdaAdapter = echoadapter.NewV2(e)
+}
 
-	// Wait for interrupt signal to gracefully shutdown the server with a timeout of 10 seconds.
-	quit := make(chan os.Signal, 1)
-	signal.Notify(quit, syscall.SIGTERM) // AWS Lambda and GCP Cloud Run uses SIGTERM
-	<-quit
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-	if err := e.Shutdown(ctx); err != nil {
-		e.Logger.Fatal(err)
-	}
-
-	println("Server successfully has been shutdown")
+func main() {
+	log.Print("main started")
+	lambda.Start(func(ctx context.Context, req events.APIGatewayV2HTTPRequest) (events.APIGatewayV2HTTPResponse, error) {
+		return lambdaAdapter.ProxyWithContext(ctx, req)
+	})
 }
