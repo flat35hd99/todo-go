@@ -1,4 +1,4 @@
-module api
+module backend
 
 go 1.18
 

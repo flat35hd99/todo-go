@@ -1,6 +1,7 @@
 package main
 
 import (
+	"backend"
 	"context"
 	"log"
 
@@ -12,33 +13,33 @@ import (
 	"gorm.io/gorm"
 )
 
-func newApp(db *gorm.DB) *echo.Echo {
+func NewApp(db *gorm.DB) *echo.Echo {
 	e := echo.New()
 
-	userHandler := NewUserHandler(db)
+	userHandler := backend.NewUserHandler(db)
 	userGroup := e.Group("/users")
-	userGroup.GET("", userHandler.getUsers)
-	userGroup.GET("/:id", userHandler.getUser)
-	userGroup.POST("", userHandler.createUser)
-	userGroup.PATCH("/:id", userHandler.updateUser)
-	userGroup.DELETE("/:id", userHandler.deleteUser)
+	userGroup.GET("", userHandler.GetUsers)
+	userGroup.GET("/:id", userHandler.GetUser)
+	userGroup.POST("", userHandler.CreateUser)
+	userGroup.PATCH("/:id", userHandler.UpdateUser)
+	userGroup.DELETE("/:id", userHandler.DeleteUser)
 
-	todoHandler := NewTodoHandler(db)
+	todoHandler := backend.NewTodoHandler(db)
 	todoGroup := e.Group("/todos")
 	// todoGroup.GET("", todoHandler.getTodos)
-	todoGroup.GET("/:id", todoHandler.getTodo)
-	todoGroup.POST("", todoHandler.createTodo)
+	todoGroup.GET("/:id", todoHandler.GetTodo)
+	todoGroup.POST("", todoHandler.CreateTodo)
 
 	return e
 }
 
-func newDB() (*gorm.DB, error) {
+func NewDB() (*gorm.DB, error) {
 	db, err := gorm.Open(sqlite.Open("/tmp/production.db"), &gorm.Config{})
 	if err != nil {
 		return nil, err
 	}
 
-	err = db.AutoMigrate(&User{}, &Todo{})
+	err = db.AutoMigrate(&backend.User{}, &backend.Todo{})
 	if err != nil {
 		return nil, err
 	}
@@ -49,12 +50,12 @@ var lambdaAdapter *echoadapter.EchoLambdaV2
 
 func init() {
 	log.Print("Cold started")
-	db, err := newDB()
+	db, err := NewDB()
 	if err != nil {
 		panic(err)
 	}
 
-	e := newApp(db)
+	e := NewApp(db)
 	lambdaAdapter = echoadapter.NewV2(e)
 }
 

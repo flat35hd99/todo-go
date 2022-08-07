@@ -1,4 +1,4 @@
-package main
+package backend
 
 import (
 	"encoding/json"
@@ -25,7 +25,7 @@ func TestCreateUser(t *testing.T) {
 	rec := httptest.NewRecorder()
 	ctx := e.NewContext(req, rec)
 	h := NewUserHandler(db)
-	if assert.NoError(t, h.createUser(ctx)) {
+	if assert.NoError(t, h.CreateUser(ctx)) {
 		assert.Equal(t, http.StatusOK, rec.Code)
 
 		var u struct {
@@ -79,7 +79,7 @@ func TestGetUser(t *testing.T) {
 		ctx.SetParamNames("id")
 		ctx.SetParamValues("1")
 		h := NewUserHandler(db)
-		if assert.NoError(t, h.getUser(ctx)) {
+		if assert.NoError(t, h.GetUser(ctx)) {
 			assert.Equal(t, 200, rec.Code)
 			var u struct {
 				ID        int    `json:"id"`
@@ -109,7 +109,7 @@ func TestGetUser(t *testing.T) {
 		ctx.SetParamNames("id")
 		ctx.SetParamValues("0")
 		h := NewUserHandler(db)
-		err := h.getUser(ctx)
+		err := h.GetUser(ctx)
 		assert.Error(t, err)
 	})
 
@@ -123,7 +123,7 @@ func TestGetUser(t *testing.T) {
 		ctx.SetParamNames("id")
 		ctx.SetParamValues("\\' OR 1=1 --")
 		h := NewUserHandler(db)
-		err := h.getUser(ctx)
+		err := h.GetUser(ctx)
 		assert.Error(t, err)
 	})
 
@@ -137,7 +137,7 @@ func TestGetUser(t *testing.T) {
 		ctx.SetParamNames("id")
 		ctx.SetParamValues("a")
 		h := NewUserHandler(db)
-		err := h.getUser(ctx)
+		err := h.GetUser(ctx)
 		assert.Error(t, err)
 	})
 }
@@ -163,7 +163,7 @@ func TestUpdateUser(t *testing.T) {
 		ctx.SetParamNames("id")
 		ctx.SetParamValues("1")
 		h := NewUserHandler(db)
-		if assert.NoError(t, h.updateUser(ctx)) {
+		if assert.NoError(t, h.UpdateUser(ctx)) {
 			assert.Equal(t, http.StatusOK, rec.Code)
 
 			var u struct {
@@ -202,7 +202,7 @@ func TestUpdateUser(t *testing.T) {
 		ctx.SetParamNames("id")
 		ctx.SetParamValues("2")
 		h := NewUserHandler(db)
-		if assert.NoError(t, h.updateUser(ctx)) {
+		if assert.NoError(t, h.UpdateUser(ctx)) {
 			assert.Equal(t, http.StatusOK, rec.Code)
 
 			var u struct {
@@ -241,7 +241,7 @@ func TestGetUsers(t *testing.T) {
 		ctx := e.NewContext(req, rec)
 		ctx.SetPath("/users")
 		h := NewUserHandler(db)
-		if assert.NoError(t, h.getUsers(ctx)) {
+		if assert.NoError(t, h.GetUsers(ctx)) {
 			assert.Equal(t, http.StatusOK, rec.Code)
 
 			var data struct {
@@ -282,7 +282,7 @@ func TestDeleteUser(t *testing.T) {
 		ctx.SetParamNames("id")
 		ctx.SetParamValues("1")
 		h := NewUserHandler(db)
-		if assert.NoError(t, h.deleteUser(ctx)) {
+		if assert.NoError(t, h.DeleteUser(ctx)) {
 			assert.Equal(t, http.StatusOK, rec.Code)
 
 			var u struct {
