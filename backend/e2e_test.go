@@ -1,4 +1,4 @@
-package main
+package backend
 
 import (
 	"fmt"
@@ -10,7 +10,7 @@ import (
 	jsonpath "github.com/steinfletcher/apitest-jsonpath"
 	"github.com/stretchr/testify/assert"
 
-	"gorm.io/driver/sqlite"
+	"github.com/glebarez/sqlite"
 	"gorm.io/gorm"
 )
 
@@ -39,7 +39,7 @@ func TestE2E(t *testing.T) {
 
 		db := newMockDB(t)
 		apitest.New().
-			Handler(newApp(db)).
+			Handler(NewApp(db)).
 			Get("/users/1").
 			Expect(t).
 			Status(http.StatusNotFound).
@@ -58,7 +58,7 @@ func TestE2E(t *testing.T) {
 			t.Error(err)
 		}
 		apitest.New().
-			Handler(newApp(db)).
+			Handler(NewApp(db)).
 			Get("/users").
 			Expect(t).
 			Status(http.StatusOK).
@@ -70,7 +70,7 @@ func TestE2E(t *testing.T) {
 
 		db := newMockDB(t)
 		apitest.New().
-			Handler(newApp(db)).
+			Handler(NewApp(db)).
 			Post("/users").
 			ContentType("application/json").
 			Body(`{"name":"test","age":30}`).
@@ -129,7 +129,7 @@ func TestE2E(t *testing.T) {
 			t.Error(err)
 		}
 		apitest.New().
-			Handler(newApp(db)).
+			Handler(NewApp(db)).
 			Get("/todos/1").
 			Expect(t).
 			Status(http.StatusOK).
@@ -169,7 +169,7 @@ func TestE2E(t *testing.T) {
 			t.Error(err)
 		}
 		apitest.New().
-			Handler(newApp(db)).
+			Handler(NewApp(db)).
 			Post("/todos").
 			ContentType("application/json").
 			Body(fmt.Sprintf(`{"title":"test title","body":"test body","done":false,"user_id":%d}`, u.ID)).

@@ -1,4 +1,4 @@
-package main
+package backend
 
 import (
 	"net/http"
@@ -18,7 +18,7 @@ func NewUserHandler(db *gorm.DB) UserHandler {
 	return controller
 }
 
-func (controller UserHandler) getUser(c echo.Context) error {
+func (controller UserHandler) GetUser(c echo.Context) error {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Irregal ID")
@@ -33,7 +33,7 @@ func (controller UserHandler) getUser(c echo.Context) error {
 	return c.JSON(http.StatusOK, user)
 }
 
-func (handler UserHandler) createUser(c echo.Context) error {
+func (handler UserHandler) CreateUser(c echo.Context) error {
 	u := new(User)
 	if err := c.Bind(u); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Structure is not good")
@@ -54,7 +54,7 @@ func (handler UserHandler) createUser(c echo.Context) error {
 	return c.JSON(http.StatusOK, user)
 }
 
-func (handler UserHandler) updateUser(c echo.Context) error {
+func (handler UserHandler) UpdateUser(c echo.Context) error {
 	u := new(User)
 	if err := c.Bind(u); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Structure is not good")
@@ -87,7 +87,7 @@ func (handler UserHandler) updateUser(c echo.Context) error {
 	return c.JSON(http.StatusOK, user)
 }
 
-func (handler UserHandler) getUsers(c echo.Context) error {
+func (handler UserHandler) GetUsers(c echo.Context) error {
 	var users []User
 	result := handler.db.Find(&users)
 	if result.Error != nil {
@@ -101,7 +101,7 @@ func (handler UserHandler) getUsers(c echo.Context) error {
 	})
 }
 
-func (handler UserHandler) deleteUser(c echo.Context) error {
+func (handler UserHandler) DeleteUser(c echo.Context) error {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Irregal ID")

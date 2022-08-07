@@ -1,4 +1,4 @@
-package main
+package backend
 
 import (
 	"net/http"
@@ -18,7 +18,7 @@ type TodoHandler struct {
 	db *gorm.DB
 }
 
-func (handler TodoHandler) getTodo(c echo.Context) error {
+func (handler TodoHandler) GetTodo(c echo.Context) error {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Irregal ID")
@@ -33,7 +33,7 @@ func (handler TodoHandler) getTodo(c echo.Context) error {
 	return c.JSON(http.StatusOK, todo)
 }
 
-func (handler TodoHandler) createTodo(c echo.Context) error {
+func (handler TodoHandler) CreateTodo(c echo.Context) error {
 	inputTodo := new(Todo)
 	if err := c.Bind(&inputTodo); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Invalid request")
