@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        working-dir: ["backend/cmd/lambda", "backend/cmd/linux"]
+        working-dir: ["lambda", "linux"]
     steps:
       - uses: actions/checkout@v2
 
@@ -25,23 +25,23 @@ jobs:
       - name: "Install dependencies"
         run: |
           go get -v .
-        working-directory: ${{ matrix.working-dir }}
+        working-directory: "backend/cmd/${{ matrix.working-dir }}"
 
       - name: "Test"
         run: |
           go test -v .
-        working-directory: ${{ matrix.working-dir }}
+        working-directory: "backend/cmd/${{ matrix.working-dir }}"
 
       - name: "Build"
         run: |
           go build -o app
-        working-directory: ${{ matrix.working-dir }}
+        working-directory: "backend/cmd/${{ matrix.working-dir }}"
 
       - name: "Upload artifact"
         uses: actions/upload-artifact@v3
         with:
-          name: "app - ${{ matrix.working-dir}}"
-          path: "${{ matrix.working-dir}}/app"
+          name: ${{ matrix.working-dir }}
+          path: "backend/cmd/${{ matrix.working-dir }}/app"
 
   build-front:
     runs-on: ubuntu-latest
