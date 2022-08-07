@@ -53,3 +53,17 @@ func (handler TodoHandler) CreateTodo(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, todo)
 }
+
+func (handler TodoHandler) getTodos(c echo.Context) error {
+	var todos []Todo
+	result := handler.db.Find(&todos)
+	if result.Error != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to get todos")
+	}
+
+	return c.JSON(http.StatusOK, struct {
+		Todos []Todo `json:"todos"`
+	}{
+		Todos: todos,
+	})
+}

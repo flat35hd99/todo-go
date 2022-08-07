@@ -184,4 +184,44 @@ func TestE2E(t *testing.T) {
 		assert.Equal(t, td.Done, false)
 		assert.Equal(t, td.UserID, u.ID)
 	})
+
+	t.Run("Norma: Get todos", func(t *testing.T) {
+		t.Parallel()
+
+		db := newMockDB(t)
+
+		type todo struct {
+			Title  string `json:"title"`
+			Body   string `json:"body"`
+			Done   bool   `json:"done"`
+			UserId int    `json:"user_id"`
+		}
+		type user struct {
+			ID    int    `json:"id"`
+			Name  string `json:"name"`
+			Age   int    `json:"age"`
+			Todos []todo `json:"todos"`
+		}
+		u := user{
+			Name: "test",
+			Age:  30,
+			Todos: []todo{
+				{
+					Title: "test title",
+					Body:  "test body",
+					Done:  false,
+				},
+			},
+		}
+		if err := db.Create(&u).Error; err != nil {
+			t.Error(err)
+		}
+		apitest.New().
+			Handler(newApp(db)).
+			Get("/todos").
+			Expect(t).
+			// Status(http.StatusOK).
+			Assert(
+				jsonpath.Root("$.todos[0]").Equal("title", "test title").Equal("body", "test body").Equal("done", false).Equal("user_id", 1.0).End())
+	})
 }

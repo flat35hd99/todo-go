@@ -38,5 +38,9 @@
 	"remoteEnv": {
 		"AWS_ACCESS_KEY_ID": "${localEnv:DEVCONTAINER_AWS_ACCESS_KEY_ID}",
 		"AWS_SECRET_ACCESS_KEY": "${localEnv:DEVCONTAINER_AWS_SECRET_ACCESS_KEY}"
+	},
+
+	"containerEnv": {
+		"REACT_APP_API_URL": "http://localhost:8080"
 	}
 }
