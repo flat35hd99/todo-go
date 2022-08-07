@@ -217,7 +217,7 @@ func TestE2E(t *testing.T) {
 			t.Error(err)
 		}
 		apitest.New().
-			Handler(newApp(db)).
+			Handler(NewApp(db)).
 			Get("/todos").
 			Expect(t).
 			// Status(http.StatusOK).
