@@ -1,11 +1,38 @@
+locals {
+  // Thx https://engineering.statefarm.com/blog/terraform-s3-upload-with-mime/
+  mime_types = {
+    ".html" : "text/html"
+    ".js" : "application/javascript; charset=utf-8"
+    ".css" : "text/css"
+  }
+}
+
 resource "aws_s3_bucket" "web" {
   bucket_prefix = "flat35hd99oiwie"
-  acl           = "private"
+}
 
-  website {
-    index_document = "index.html"
-    error_document = "index.html"
+resource "aws_s3_bucket_website_configuration" "web" {
+  bucket = aws_s3_bucket.web.bucket
+  index_document {
+    suffix = "index.html"
   }
+  error_document {
+    key = "index.html"
+  }
+}
+
+resource "aws_s3_object" "contents" {
+  for_each     = fileset("${path.module}/front/dist/", "**")
+  bucket       = aws_s3_bucket.web.bucket
+  key          = each.value
+  source       = "${path.module}/front/dist/${each.value}"
+  content_type = lookup(local.mime_types, regex("\\.[^.]+$", each.value), null)
+  etag         = filemd5("${path.module}/front/dist/${each.value}")
+}
+
+resource "aws_s3_bucket_acl" "web" {
+  bucket = aws_s3_bucket.web.bucket
+  acl    = "private"
 }
 
 resource "aws_s3_bucket_policy" "web" {
@@ -58,8 +85,8 @@ resource "aws_cloudfront_distribution" "web" {
 
     viewer_protocol_policy = "redirect-to-https"
     min_ttl                = 0
-    default_ttl            = 3600
-    max_ttl                = 86400
+    default_ttl            = 20
+    max_ttl                = 30
   }
 
   restrictions {
