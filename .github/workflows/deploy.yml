@@ -77,3 +77,4 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: flat35hd99/deploy-pages@main
+        if: github.ref == 'refs/heads/master'
