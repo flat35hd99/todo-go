@@ -29,7 +29,7 @@ const Todo: React.FC = () => {
   const { register, handleSubmit } = useForm<TodoForm>()
   const onSubmit = handleSubmit(async (data) => {
     const { title, body, done } = data
-    const response = await axios.post<Todo>('http://localhost:8080/todos', {
+    const response = await axios.post<Todo>(`${import.meta.env.VITE_API_ENDPOINT_URL}todos`, {
       title,
       body,
       done,
@@ -42,7 +42,7 @@ const Todo: React.FC = () => {
   useEffect(() => {
     const f = async () => {
       const { data } = await axios.get<{ todos: Todo[] }>(
-        `http://localhost:8080/todos`
+        `${import.meta.env.VITE_API_ENDPOINT_URL}todos`
       )
       setTodos(data.todos)
     }
