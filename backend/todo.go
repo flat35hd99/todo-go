@@ -54,7 +54,7 @@ func (handler TodoHandler) CreateTodo(c echo.Context) error {
 	return c.JSON(http.StatusOK, todo)
 }
 
-func (handler TodoHandler) getTodos(c echo.Context) error {
+func (handler TodoHandler) GetTodos(c echo.Context) error {
 	var todos []Todo
 	result := handler.db.Find(&todos)
 	if result.Error != nil {
