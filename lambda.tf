@@ -11,6 +11,14 @@ resource "aws_lambda_function" "server" {
   filename         = data.archive_file.archive_binary.output_path
   handler          = local.lambda_binary_filename
   source_code_hash = data.archive_file.archive_binary.output_base64sha256
+
+  # TODO: This configuration can make terraform to deploy when source of lambda functions
+  # are changed but cause of unknown reason, someitmes apply will fail. 
+  lifecycle {
+    replace_triggered_by = [
+      data.archive_file.archive_binary
+    ]
+  }
 }
 
 resource "aws_lambda_function_url" "endpoint" {
@@ -78,13 +86,14 @@ resource "aws_iam_policy_attachment" "lambda_log" {
 }
 
 // Build lambda function executable binary
-resource "null_resource" "buildstep" {
+resource "null_resource" "build_backend" {
   triggers = {
     "hash" = join("", [for f in fileset(path.module, "/backend/**/*.go") : filebase64sha256(f)])
   }
 
   provisioner "local-exec" {
-    command = "cd backend/cmd/lambda && go build -o ${local.lambda_binary_filename}"
+    command     = "go build -o ${local.lambda_binary_filename}"
+    working_dir = "${path.module}/backend/cmd/lambda"
   }
 }
 
@@ -95,6 +104,6 @@ data "archive_file" "archive_binary" {
   type        = "zip"
 
   depends_on = [
-    null_resource.buildstep
+    null_resource.build_backend
   ]
 }

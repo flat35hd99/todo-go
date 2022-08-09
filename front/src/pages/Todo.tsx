@@ -29,11 +29,14 @@ const Todo: React.FC = () => {
   const { register, handleSubmit } = useForm<TodoForm>()
   const onSubmit = handleSubmit(async (data) => {
     const { title, body, done } = data
-    const response = await axios.post<Todo>(`${import.meta.env.VITE_API_ENDPOINT_URL}todos`, {
-      title,
-      body,
-      done,
-    })
+    const response = await axios.post<Todo>(
+      `${import.meta.env.VITE_API_ENDPOINT_URL}todos`,
+      {
+        title,
+        body,
+        done,
+      }
+    )
     setOpen(false)
     const todo = response.data
     setTodos([...todos, todo])
@@ -47,7 +50,7 @@ const Todo: React.FC = () => {
       setTodos(data.todos)
     }
     f()
-  })
+  }, []) // To run only once
   return (
     <div>
       <h1>Todo</h1>
