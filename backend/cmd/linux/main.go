@@ -28,5 +28,6 @@ func main() {
 	}
 
 	e := backend.NewApp(db)
+	// e.Use(middleware.CORS())
 	log.Fatal(e.Start(":8080"))
 }
