@@ -42,39 +42,3 @@ jobs:
         with:
           name: ${{ matrix.working-dir }}
           path: "backend/cmd/${{ matrix.working-dir }}/app"
-
-  build-front:
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    permissions:
-      contents: read
-      pages: write
-      id-token: write
-    steps:
-      - uses: actions/checkout@v2
-
-      - uses: actions/setup-node@v3
-        with:
-          node-version: "18.4.0"
-          cache: "yarn"
-          cache-dependency-path: front/yarn.lock
-      - run: yarn
-        working-directory: front
-
-      - run: yarn lint
-        working-directory: front
-
-      - run: yarn build
-        working-directory: front
-
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v1
-        with:
-          path: ./front/dist/
-
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: flat35hd99/deploy-pages@main
-        if: github.ref == 'refs/heads/master'
