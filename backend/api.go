@@ -18,7 +18,7 @@ func NewApp(db *gorm.DB) *echo.Echo {
 
 	todoHandler := NewTodoHandler(db)
 	todoGroup := e.Group("/todos")
-	// todoGroup.GET("", todoHandler.getTodos)
+	todoGroup.GET("", todoHandler.GetTodos)
 	todoGroup.GET("/:id", todoHandler.GetTodo)
 	todoGroup.POST("", todoHandler.CreateTodo)
 
