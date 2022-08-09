@@ -77,6 +77,7 @@ resource "aws_iam_policy_attachment" "lambda_log" {
   policy_arn = aws_iam_policy.lambda_logging.arn
 }
 
+// Build lambda function executable binary
 resource "null_resource" "buildstep" {
   triggers = {
     "hash" = join("", [for f in fileset(path.module, "/backend/**/*.go") : filebase64sha256(f)])
@@ -87,6 +88,7 @@ resource "null_resource" "buildstep" {
   }
 }
 
+// Archive binary file to upload
 data "archive_file" "archive_binary" {
   source_file = "${path.module}/backend/cmd/lambda/${local.lambda_binary_filename}"
   output_path = "${path.module}/function_payload.zip"
