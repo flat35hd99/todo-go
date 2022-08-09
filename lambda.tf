@@ -1,5 +1,6 @@
 locals {
-  lambda_function_name = "server"
+  lambda_function_name   = "server"
+  lambda_binary_filename = "app"
 }
 
 resource "aws_lambda_function" "server" {
@@ -7,9 +8,9 @@ resource "aws_lambda_function" "server" {
   role          = aws_iam_role.for_lambda.arn
 
   runtime          = "go1.x"
-  filename         = "function_payload.zip"
-  handler          = "app"
-  source_code_hash = filebase64sha256("function_payload.zip")
+  filename         = data.archive_file.archive_binary.output_path
+  handler          = local.lambda_binary_filename
+  source_code_hash = data.archive_file.archive_binary.output_base64sha256
 }
 
 resource "aws_lambda_function_url" "endpoint" {
@@ -74,4 +75,24 @@ resource "aws_iam_policy_attachment" "lambda_log" {
   name       = "lambda_log"
   roles      = [aws_iam_role.for_lambda.name]
   policy_arn = aws_iam_policy.lambda_logging.arn
+}
+
+resource "null_resource" "buildstep" {
+  triggers = {
+    "hash" = join("", [for f in fileset(path.module, "/backend/**/*.go") : filebase64sha256(f)])
+  }
+
+  provisioner "local-exec" {
+    command = "cd backend/cmd/lambda && go build -o ${local.lambda_binary_filename}"
+  }
+}
+
+data "archive_file" "archive_binary" {
+  source_file = "${path.module}/backend/cmd/lambda/${local.lambda_binary_filename}"
+  output_path = "${path.module}/function_payload.zip"
+  type        = "zip"
+
+  depends_on = [
+    null_resource.buildstep
+  ]
 }
