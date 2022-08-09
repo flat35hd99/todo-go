@@ -50,7 +50,7 @@ const Todo: React.FC = () => {
       setTodos(data.todos)
     }
     f()
-  })
+  }, []) // To run only once
   return (
     <div>
       <h1>Todo</h1>
