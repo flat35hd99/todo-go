@@ -19,7 +19,7 @@ resource "aws_lambda_function_url" "endpoint" {
   cors {
     allow_headers = ["*"]
     allow_methods = ["*"]
-    allow_origins = ["*"]
+    allow_origins = ["https://${aws_cloudfront_distribution.web.domain_name}"]
     max_age       = 60
   }
 }
