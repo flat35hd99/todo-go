@@ -65,7 +65,7 @@ jobs:
       - name: Obtain API endpoint URL
         id: obtain_api_url
         run: |
-          terraform output api_endpoint_url | tee /tmp/api_endpoint_url
+          terraform output -raw api_endpoint_url | tee /tmp/api_endpoint_url
           echo "::set-output name=api_endpoint_url::$(cat /tmp/api_endpoint_url)"
 
       - run: yarn
