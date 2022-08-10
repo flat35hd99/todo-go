@@ -31,7 +31,7 @@ jobs:
         working-directory: "backend/cmd/${{ matrix.working-dir }}"
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v2
         with:
           name: app-binary-${{ matrix.working-dir }}
           path: backend/cmd/${{ matrix.working-dir }}/app
@@ -77,7 +77,7 @@ jobs:
           VITE_API_ENDPOINT_URL: ${{ steps.obtain_api_url.outputs.api_endpoint_url }}
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v2
         with:
           name: frontend
           path: front/dist/
@@ -90,13 +90,13 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Download backend
-        uses: actions/download-artifact@v1
+        uses: actions/download-artifact@v3
         with:
           name: app-binary-lambda
-          path: backend/cmd/lambda/app
+          path: backend/cmd/lambda
 
       - name: Download frontend
-        uses: actions/download-artifact@v1
+        uses: actions/download-artifact@v3
         with:
           name: frontend
           path: front/dist/
