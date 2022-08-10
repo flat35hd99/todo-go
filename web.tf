@@ -28,25 +28,6 @@ resource "aws_s3_object" "contents" {
   source       = "${path.module}/front/dist/${each.key}"
   content_type = lookup(local.mime_types, regex("\\.[^.]+$", each.key), null)
   etag         = filemd5("${path.module}/front/dist/${each.key}")
-  depends_on = [
-    null_resource.build_frontend
-  ]
-}
-
-resource "null_resource" "build_frontend" {
-  triggers = {
-    # Fix me.
-    # I should check all files without front/node_modules and front/dist/
-    "source_hash" = join("", [for f in fileset(path.module, "/front/src/**/*.tsx") : filebase64sha256(f)])
-    "dist_hash"   = fileexists("${path.module}/front/dist/.keep") ? join("", [for f in fileset(path.module, "/front/dist/**") : filebase64sha256(f)]) : ""
-  }
-  provisioner "local-exec" {
-    command     = "yarn && yarn build && touch dist/.keep"
-    working_dir = "${path.module}/front"
-    environment = {
-      VITE_API_ENDPOINT_URL = aws_lambda_function_url.endpoint.function_url
-    }
-  }
 }
 
 resource "aws_s3_bucket_acl" "web" {

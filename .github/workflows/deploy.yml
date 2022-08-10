@@ -22,15 +22,19 @@ jobs:
           cache: true
           cache-dependency-path: backend/go.sum
 
-      - name: "Install dependencies"
-        run: |
-          go get -v .
+      - name: Test
+        run: go test -v .
         working-directory: "backend/cmd/${{ matrix.working-dir }}"
 
-      - name: "Test"
-        run: |
-          go test -v .
+      - name: Build
+        run: go build -v -o app
         working-directory: "backend/cmd/${{ matrix.working-dir }}"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v1
+        with:
+          name: app-binary-${{ matrix.working-dir }}
+          path: backend/cmd/${{ matrix.working-dir }}/app
 
   test-and-build-frontend:
     runs-on: ubuntu-latest
@@ -41,10 +45,38 @@ jobs:
           node-version: "18.4.0"
           cache: "yarn"
           cache-dependency-path: front/yarn.lock
+
+      # To obtain api url, run the following command
+      - uses: aws-actions/setup-sam@v2
+      - uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-west-2
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v1
+        with:
+          cli_config_credentials_token: ${{ secrets.TERRAFORM_CLOUD_API_TOKEN }}
+
+      - name: Obtain API endpoint URL
+        run: |
+          terraform output api_endpoint_url 2>&1 | tee /tmp/api_endpoint_url
+          echo "::set-output name=api_endpoint_url::$(cat /tmp/api_endpoint_url)"
+
       - run: yarn
         working-directory: front/
+
       - run: yarn build
         working-directory: front/
+        env:
+          VITE_API_ENDPOINT_URL: ${{ outputs.api_endpoint_url }}
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v1
+        with:
+          name: frontend
+          path: front/dist/
 
   deploy:
     runs-on: ubuntu-latest
@@ -53,17 +85,17 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - uses: actions/setup-go@v3
+      - name: Download backend
+        uses: actions/download-artifact@v1
         with:
-          go-version-file: "backend/go.mod"
-          cache: true
-          cache-dependency-path: backend/go.sum
+          name: app-binary-lambda
+          path: backend/cmd/lambda/app
 
-      - uses: actions/setup-node@v3
+      - name: Download frontend
+        uses: actions/download-artifact@v1
         with:
-          node-version: "18.4.0"
-          cache: "yarn"
-          cache-dependency-path: front/yarn.lock
+          name: frontend
+          path: front/dist/
 
       - uses: aws-actions/setup-sam@v2
       - uses: aws-actions/configure-aws-credentials@v1
@@ -88,9 +120,6 @@ jobs:
       - name: Terraform Validate
         id: validate
         run: terraform validate -no-color
-
-      - name: Terraform preparation
-        run: mkdir front/dist && touch front/dist/.keep
 
       - name: Terraform Plan
         id: plan
