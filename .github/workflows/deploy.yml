@@ -8,7 +8,7 @@ on:
       - main
 
 jobs:
-  build-go:
+  test-backend:
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -32,9 +32,23 @@ jobs:
           go test -v .
         working-directory: "backend/cmd/${{ matrix.working-dir }}"
 
+  test-frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v3
+        with:
+          node-version: "18.4.0"
+          cache: "yarn"
+          cache-dependency-path: front/yarn.lock
+      - run: yarn
+        working-directory: front/
+      - run: yarn build
+        working-directory: front/
+
   deploy:
     runs-on: ubuntu-latest
-    needs: ["build-go"]
+    needs: ["test-frontend", "test-backend"]
     concurrency: terraform-operation
     steps:
       - uses: actions/checkout@v2
