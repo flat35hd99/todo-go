@@ -86,10 +86,13 @@ resource "aws_iam_policy_attachment" "lambda_log" {
 }
 
 // Build lambda function executable binary
+locals {
+  binary_filename = "${path.module}/backend/cmd/lambda/${local.lambda_binary_filename}"
+}
 resource "null_resource" "build_backend" {
   triggers = {
     "source_hash" = join("", [for f in fileset(path.module, "/backend/**/*.go") : filebase64sha256(f)])
-    "binary_hash" = filebase64sha256("${path.module}/backend/cmd/lambda/${local.lambda_binary_filename}")
+    "binary_hash" = fileexists(local.binary_filename) ? filebase64sha256(local.binary_filename) : ""
   }
 
   provisioner "local-exec" {
@@ -100,7 +103,7 @@ resource "null_resource" "build_backend" {
 
 // Archive binary file to upload
 data "archive_file" "archive_binary" {
-  source_file = "${path.module}/backend/cmd/lambda/${local.lambda_binary_filename}"
+  source_file = local.binary_filename
   output_path = "${path.module}/function_payload.zip"
   type        = "zip"
 
