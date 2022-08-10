@@ -41,7 +41,7 @@ resource "null_resource" "build_frontend" {
     "dist_hash"   = fileexists("${path.module}/front/dist/.keep") ? join("", [for f in fileset(path.module, "/front/dist/**") : filebase64sha256(f)]) : ""
   }
   provisioner "local-exec" {
-    command     = "yarn && yarn build"
+    command     = "yarn && yarn build && touch dist/.keep"
     working_dir = "${path.module}/front"
     environment = {
       VITE_API_ENDPOINT_URL = aws_lambda_function_url.endpoint.function_url
