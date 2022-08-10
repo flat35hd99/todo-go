@@ -134,5 +134,4 @@ jobs:
           -auto-approve \
           -input=false \
           -replace="null_resource.build_frontend" \
-          -replace="aws_s3_bucket.web" \
           -replace="null_resource.build_backend"
