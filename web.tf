@@ -24,10 +24,10 @@ resource "aws_s3_bucket_website_configuration" "web" {
 resource "aws_s3_object" "contents" {
   for_each     = fileset("${path.module}/front/dist/", "**")
   bucket       = aws_s3_bucket.web.bucket
-  key          = each.value
-  source       = "${path.module}/front/dist/${each.value}"
-  content_type = lookup(local.mime_types, regex("\\.[^.]+$", each.value), null)
-  etag         = filemd5("${path.module}/front/dist/${each.value}")
+  key          = each.key
+  source       = "${path.module}/front/dist/${each.key}"
+  content_type = lookup(local.mime_types, regex("\\.[^.]+$", each.key), null)
+  etag         = filemd5("${path.module}/front/dist/${each.key}")
   depends_on = [
     null_resource.build_frontend
   ]
