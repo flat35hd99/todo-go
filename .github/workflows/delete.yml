@@ -2,11 +2,11 @@ name: "Delete infra daily"
 on:
   schedule:
     - cron: "0 0 * * *"
-concurrency: deletion-infra
 
 jobs:
   delete:
     runs-on: ubuntu-latest
+    concurrency: terraform-operation
     steps:
       - uses: actions/checkout@v2
 
