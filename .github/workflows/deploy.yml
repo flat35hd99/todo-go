@@ -131,4 +131,5 @@ jobs:
           -auto-approve \
           -input=false \
           -replace="null_resource.build_frontend" \
+          -replace="aws_s3_object.contents" \
           -replace="null_resource.build_backend"
