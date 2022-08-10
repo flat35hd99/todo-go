@@ -7,6 +7,14 @@ terraform {
   }
 
   required_version = ">= 1.2.0"
+
+  cloud {
+    organization = "flat35hd99"
+
+    workspaces {
+      name = "todo-go"
+    }
+  }
 }
 
 provider "aws" {
