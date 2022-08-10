@@ -89,6 +89,9 @@ jobs:
         id: validate
         run: terraform validate -no-color
 
+      - name: Terraform preparation
+        run: mkdir front/dist && touch front/dist/.keep
+
       - name: Terraform Plan
         id: plan
         if: github.event_name == 'pull_request'
@@ -131,5 +134,4 @@ jobs:
           -auto-approve \
           -input=false \
           -replace="null_resource.build_frontend" \
-          -replace="aws_s3_bucket.web" \
           -replace="null_resource.build_backend"
