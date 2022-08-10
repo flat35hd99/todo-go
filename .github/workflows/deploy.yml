@@ -60,6 +60,7 @@ jobs:
           cli_config_credentials_token: ${{ secrets.TERRAFORM_CLOUD_API_TOKEN }}
 
       - name: Obtain API endpoint URL
+        id: obtain_api_url
         run: |
           terraform output api_endpoint_url 2>&1 | tee /tmp/api_endpoint_url
           echo "::set-output name=api_endpoint_url::$(cat /tmp/api_endpoint_url)"
@@ -70,7 +71,7 @@ jobs:
       - run: yarn build
         working-directory: front/
         env:
-          VITE_API_ENDPOINT_URL: ${{ outputs.api_endpoint_url }}
+          VITE_API_ENDPOINT_URL: ${{ steps.obtain_api_url.outputs.api_endpoint_url }}
 
       - name: Upload artifact
         uses: actions/upload-artifact@v1
