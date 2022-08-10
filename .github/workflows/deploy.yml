@@ -127,8 +127,8 @@ jobs:
       - name: Terraform Apply
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         run: |
-          terraform apply\
-          -auto-approve\
-          -input=false\
-          -replace="null_resource.build_frontend"\
+          terraform apply \
+          -auto-approve \
+          -input=false \
+          -replace="null_resource.build_frontend" \
           -replace="null_resource.build_backend"
