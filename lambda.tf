@@ -11,14 +11,6 @@ resource "aws_lambda_function" "server" {
   filename         = data.archive_file.archive_binary.output_path
   handler          = local.lambda_binary_filename
   source_code_hash = data.archive_file.archive_binary.output_base64sha256
-
-  # TODO: This configuration can make terraform to deploy when source of lambda functions
-  # are changed but cause of unknown reason, someitmes apply will fail. 
-  lifecycle {
-    replace_triggered_by = [
-      data.archive_file.archive_binary
-    ]
-  }
 }
 
 resource "aws_lambda_function_url" "endpoint" {

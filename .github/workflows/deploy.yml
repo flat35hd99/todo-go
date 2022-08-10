@@ -165,6 +165,4 @@ jobs:
         run: |
           terraform apply \
           -auto-approve \
-          -input=false \
-          -replace="null_resource.build_frontend" \
-          -replace="null_resource.build_backend"
+          -input=false
