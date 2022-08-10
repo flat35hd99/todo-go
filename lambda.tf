@@ -88,7 +88,8 @@ resource "aws_iam_policy_attachment" "lambda_log" {
 // Build lambda function executable binary
 resource "null_resource" "build_backend" {
   triggers = {
-    "hash" = join("", [for f in fileset(path.module, "/backend/**/*.go") : filebase64sha256(f)])
+    "source_hash" = join("", [for f in fileset(path.module, "/backend/**/*.go") : filebase64sha256(f)])
+    "binary_hash" = filebase64sha256("${path.module}/backend/cmd/lambda/${local.lambda_binary_filename}")
   }
 
   provisioner "local-exec" {
