@@ -59,6 +59,9 @@ jobs:
         with:
           cli_config_credentials_token: ${{ secrets.TERRAFORM_CLOUD_API_TOKEN }}
 
+      - name: Initilize terraform
+        run: terraform init
+
       - name: Obtain API endpoint URL
         id: obtain_api_url
         run: |
