@@ -37,7 +37,8 @@ resource "null_resource" "build_frontend" {
   triggers = {
     # Fix me.
     # I should check all files without front/node_modules and front/dist/
-    "hash" = join("", [for f in fileset(path.module, "/front/src/**/*.tsx") : filebase64sha256(f)])
+    "source_hash" = join("", [for f in fileset(path.module, "/front/src/**/*.tsx") : filebase64sha256(f)])
+    "dist_hash"   = fileexists("${path.module}/front/dist") ? join("", [for f in fileset(path.module, "/front/dist/**") : filebase64sha256(f)]) : ""
   }
   provisioner "local-exec" {
     command     = "yarn && yarn build"
