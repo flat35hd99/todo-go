@@ -1,7 +1,7 @@
 name: "Delete infra daily"
 on:
   schedule:
-    - cron: "0 0 * * *"
+    - cron: "0 20 * * *"
 
 jobs:
   delete:
@@ -10,17 +10,6 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - uses: actions/setup-go@v3
-        with:
-          go-version-file: "backend/go.mod"
-          cache: true
-          cache-dependency-path: backend/go.sum
-
-      - uses: actions/setup-node@v3
-        with:
-          node-version: "18.4.0"
-          cache: "yarn"
-          cache-dependency-path: front/yarn.lock
 
       - uses: aws-actions/setup-sam@v2
       - uses: aws-actions/configure-aws-credentials@v1
@@ -38,6 +27,5 @@ jobs:
         id: init
         run: terraform init
 
-      - name: Terraform Apply
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+      - name: Terraform Delete
         run: terraform apply -auto-approve -input=false
