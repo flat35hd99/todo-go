@@ -10,7 +10,6 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-
       - uses: aws-actions/setup-sam@v2
       - uses: aws-actions/configure-aws-credentials@v1
         with:
@@ -23,9 +22,5 @@ jobs:
         with:
           cli_config_credentials_token: ${{ secrets.TERRAFORM_CLOUD_API_TOKEN }}
 
-      - name: Terraform Init
-        id: init
-        run: terraform init
-
-      - name: Terraform Delete
-        run: terraform apply -auto-approve -input=false
+      - run: terraform init
+      - run: terraform destroy -auto-approve -input=false
