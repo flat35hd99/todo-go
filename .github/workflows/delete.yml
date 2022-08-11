@@ -24,3 +24,13 @@ jobs:
 
       - run: terraform init
       - run: terraform destroy -auto-approve -input=false
+
+      - name: Notify failure to slack
+        if: failure()
+        uses: voxmedia/github-action-slack-notify-build@v1
+        with:
+          channel: ${{ secrets.SLACK_NOTIFY_CHANNEL }}
+          status: Failed
+          color: danger
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
