@@ -24,8 +24,12 @@ jobs:
           cli_config_credentials_token: ${{ secrets.TERRAFORM_CLOUD_API_TOKEN }}
 
       - run: terraform init
+      - name: Prepare dummy files
+        run: |
+          mkdir front/dist
+          touch front/dist/index.html
+          touch backend/cmd/lambda/app
       - run: terraform destroy -auto-approve -input=false
-
       - name: Notify failure to slack
         if: failure()
         uses: voxmedia/github-action-slack-notify-build@v1
