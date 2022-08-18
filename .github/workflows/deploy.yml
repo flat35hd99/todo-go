@@ -137,6 +137,16 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
+            const re = /^(\s*)([\+\-])(.*)$/
+            const plantxt = process.env.PLAN.split(/\r\n|\n/).map(line => {
+              if (re.test(line)) {
+                [, spaces, operator, rest] = line.match(re)
+                return `${operator}${spaces}${rest}`
+              } else {
+                return line
+              }
+            }).join('\n');
+            );
             const output = `#### Terraform Format and Style 🖌\`${{ steps.fmt.outcome }}\`
             #### Terraform Initialization ⚙️\`${{ steps.init.outcome }}\`
             #### Terraform Plan 📖\`${{ steps.plan.outcome }}\`
