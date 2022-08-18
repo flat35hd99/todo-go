@@ -17,7 +17,8 @@ import (
 
 /* Create a mock database
 This function will create a mock database and return it.
-The database will be closed when the test is finished.
+Multiple DBs can be created and controlled because mock DBs separated.
+The database will be closed automatically when the test is finished.
 */
 func newMockDB(t *testing.T) *gorm.DB {
 	tmpdir := t.TempDir()
