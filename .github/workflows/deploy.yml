@@ -142,11 +142,14 @@ jobs:
             #### Terraform Plan 📖\`${{ steps.plan.outcome }}\`
             #### Terraform Validation 🤖\`${{ steps.validate.outcome }}\`
             <details><summary>Show Plan</summary>
-            \`\`\`\n
+
+            \`\`\`diff\n
             ${process.env.PLAN}
             \`\`\`
+
             </details>
             *Pushed by: @${{ github.actor }}, Action: \`${{ github.event_name }}\`*`;
+
             github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
