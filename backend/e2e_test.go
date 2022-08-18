@@ -9,6 +9,7 @@ import (
 	"github.com/steinfletcher/apitest"
 	jsonpath "github.com/steinfletcher/apitest-jsonpath"
 	"github.com/stretchr/testify/assert"
+	"golang.org/x/crypto/bcrypt"
 
 	"github.com/glebarez/sqlite"
 	"gorm.io/gorm"
@@ -63,38 +64,6 @@ func TestE2E(t *testing.T) {
 			Expect(t).
 			Status(http.StatusOK).
 			End()
-	})
-
-	t.Run("Normal: Create users", func(t *testing.T) {
-		t.Parallel()
-
-		db := newMockDB(t)
-		apitest.New().
-			Handler(NewApp(db)).
-			Post("/users").
-			ContentType("application/json").
-			Body(`{"name":"test","age":30}`).
-			Expect(t).
-			Status(http.StatusOK).
-			End()
-
-		type user struct {
-			ID   int    `json:"id"`
-			Name string `json:"name"`
-			Age  int    `json:"age"`
-		}
-		var u user
-		assert.NoError(t, db.First(&u).Error)
-		assert.Equal(t, u.Name, "test")
-		assert.Equal(t, u.Age, 30)
-
-		u_db := User{}
-		assert.NoError(t, db.First(&u_db).Error)
-		assert.Equal(t, u_db.Name, "test")
-		assert.Equal(t, u_db.Age, uint(30))
-		assert.NotEmpty(t, u_db.ID)
-		assert.NotEmpty(t, u_db.CreatedAt)
-		assert.NotEmpty(t, u_db.UpdatedAt)
 	})
 
 	t.Run("Normal: Get a todo", func(t *testing.T) {
@@ -185,7 +154,7 @@ func TestE2E(t *testing.T) {
 		assert.Equal(t, td.UserID, u.ID)
 	})
 
-	t.Run("Norma: Get todos", func(t *testing.T) {
+	t.Run("Normal: Get todos", func(t *testing.T) {
 		t.Parallel()
 
 		db := newMockDB(t)
@@ -223,5 +192,88 @@ func TestE2E(t *testing.T) {
 			// Status(http.StatusOK).
 			Assert(
 				jsonpath.Root("$.todos[0]").Equal("title", "test title").Equal("body", "test body").Equal("done", false).Equal("user_id", 1.0).End())
+	})
+
+	// User can login by post User.Name and User.Password to /login
+	t.Run("Normal: Login", func(t *testing.T) {
+		t.Parallel()
+
+		db := newMockDB(t)
+
+		// Create hashed password using bcrypt
+		hashedPasswordBytes, err := bcrypt.GenerateFromPassword([]byte("mypassword"), 10)
+		if err != nil {
+			t.Error(err)
+		}
+
+		// Create a user using the hashed password
+		type user struct {
+			ID             int    `json:"id"`
+			Name           string `json:"name"`
+			Age            int    `json:"age"`
+			Todos          []Todo `json:"todos"`
+			HashedPassword string
+		}
+		u := user{
+			Name: "test",
+			Age:  30,
+			Todos: []Todo{
+				{
+					Title: "test title",
+					Body:  "test body",
+					Done:  false,
+				},
+			},
+			HashedPassword: string(hashedPasswordBytes),
+		}
+		if err := db.Create(&u).Error; err != nil {
+			t.Error(err)
+		}
+
+		apitest.New().
+			Handler(NewApp(db)).
+			Post("/auth/login").
+			ContentType("application/json").
+			Body(fmt.Sprintf(`{"name":"%s","password":"%s"}`, u.Name, "mypassword")).
+			Expect(t).
+			Status(http.StatusOK).
+			End()
+	})
+
+	// Sign up
+	t.Run("Normal: Sign up", func(t *testing.T) {
+		t.Parallel()
+
+		db := newMockDB(t)
+
+		// Create a user using the hashed password
+		type user struct {
+			ID             int    `json:"id"`
+			Name           string `json:"name"`
+			Age            int    `json:"age"`
+			Todos          []Todo `json:"todos"`
+			HashedPassword string
+		}
+
+		apitest.New().
+			Handler(NewApp(db)).
+			Post("/auth/signup").
+			ContentType("application/json").
+			Body(fmt.Sprintf(`{"name":"%s","password":"%s"}`, "myname", "mypassword")).
+			Expect(t).
+			Status(http.StatusOK).
+			End()
+
+		// Expect the user to be created
+		u := user{}
+		result := db.Where("name = ?", "myname").First(&u)
+		if result.Error != nil {
+			t.Error(result.Error)
+		}
+		assert.Equal(t, u.Name, "myname") // Name is set
+		// Password is hashed and stored in the database
+		// CompareHashAndPassword will return an error if the password is incorrect
+		assert.NoError(t, bcrypt.CompareHashAndPassword([]byte(u.HashedPassword), []byte("mypassword")))
+		assert.Error(t, bcrypt.CompareHashAndPassword([]byte(u.HashedPassword), []byte("mypassword2")))
 	})
 }

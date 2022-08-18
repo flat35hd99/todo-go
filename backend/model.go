@@ -13,8 +13,9 @@ type BaseStruct struct {
 type User struct {
 	BaseStruct
 
-	Name string `json:"name"`
-	Age  uint   `json:"age"`
+	Name           string `json:"name"`
+	Age            uint   `json:"age"`
+	HashedPassword string
 
 	Todos []Todo `json:"todos"`
 }
