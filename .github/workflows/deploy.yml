@@ -138,7 +138,7 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const re = /^(\s*)([\+\-])(.*)$/
-            const plantxt = process.env.PLAN.split(/\r\n|\n/).map(line => {
+            const planTxt = process.env.PLAN.split(/\r?\n/).map(line => {
               if (re.test(line)) {
                 [, spaces, operator, rest] = line.match(re)
                 return `${operator}${spaces}${rest}`
@@ -153,7 +153,7 @@ jobs:
             <details><summary>Show Plan</summary>
 
             \`\`\`diff\n
-            ${plantxt}
+            ${planTxt}
             \`\`\`
 
             </details>
