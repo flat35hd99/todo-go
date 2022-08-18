@@ -137,6 +137,11 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
+            // Update the plan output for readability
+            // Ex)
+            // "    + example_resource"
+            // "+     example_resource"
+            // This change allow syntax highlight to work properly in Pull Request comment
             const re = /^(\s*)([\+\-])(.*)$/
             const planTxt = process.env.PLAN.split(/\r?\n/).map(line => {
               if (re.test(line)) {
@@ -146,6 +151,7 @@ jobs:
                 return line
               }
             }).join('\n');
+
             const output = `#### Terraform Format and Style 🖌\`${{ steps.fmt.outcome }}\`
             #### Terraform Initialization ⚙️\`${{ steps.init.outcome }}\`
             #### Terraform Plan 📖\`${{ steps.plan.outcome }}\`
