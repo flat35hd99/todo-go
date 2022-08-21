@@ -12,40 +12,6 @@ import (
 	"gorm.io/gorm"
 )
 
-func TestCreateUser(t *testing.T) {
-	t.Parallel()
-	e := echo.New()
-
-	db := newMockDB(t)
-
-	userJSON := `{"name": "Bob", "age": 22}`
-	req := httptest.NewRequest(http.MethodPost, "/", strings.NewReader(userJSON))
-	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
-
-	rec := httptest.NewRecorder()
-	ctx := e.NewContext(req, rec)
-	h := NewUserHandler(db)
-	if assert.NoError(t, h.CreateUser(ctx)) {
-		assert.Equal(t, http.StatusOK, rec.Code)
-
-		var u struct {
-			ID        int    `json:"id"`
-			Name      string `json:"name"`
-			Age       int    `json:"age"`
-			CreatedAt string `json:"created_at"`
-			UpdatedAt string `json:"updated_at"`
-		}
-		if err := json.Unmarshal(rec.Body.Bytes(), &u); err != nil {
-			t.Error(err)
-		}
-		assert.Equal(t, "Bob", u.Name)
-		assert.Equal(t, 22, u.Age)
-		assert.NotEmpty(t, u.ID)
-		assert.NotEmpty(t, u.CreatedAt)
-		assert.NotEmpty(t, u.UpdatedAt)
-	}
-}
-
 /* Insert users and get them back
 {ID: 1, Name: "Bob", Age: 22},
 {ID: 2, Name: "Alice", Age: 33},
