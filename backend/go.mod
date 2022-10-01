@@ -6,7 +6,7 @@ require (
 	github.com/aws/aws-lambda-go v1.19.1
 	github.com/awslabs/aws-lambda-go-api-proxy v0.13.3
 	github.com/glebarez/sqlite v1.4.6
-	github.com/labstack/echo/v4 v4.7.2
+	github.com/labstack/echo/v4 v4.9.0
 	github.com/steinfletcher/apitest v1.5.12
 	github.com/steinfletcher/apitest-jsonpath v1.7.1
 	github.com/stretchr/testify v1.7.0
